@@ -108,25 +108,25 @@ class TradingDataHandler:
     def engineer_features(self, df: pd.DataFrame) -> pd.DataFrame:
         """Engineer additional features"""
         df = df.copy()
-        
-        # Price-based features
-        df['front_hl_ratio'] = df['front_high'] / df['front_low']
-        df['second_hl_ratio'] = df['second_high'] / df['second_low']
-        df['front_close_position'] = (df['front_close'] - df['front_low']) / (df['front_high'] - df['front_low'])
-        df['second_close_position'] = (df['second_close'] - df['second_low']) / (df['second_high'] - df['second_low'])
-        
+    
+        # Price-based features (update column names)
+        df['front_hl_ratio'] = df['PX_HIGH1'] / df['PX_LOW1']
+        df['second_hl_ratio'] = df['PX_HIGH2'] / df['PX_LOW2']
+        df['front_close_position'] = (df['PX_LAST1'] - df['PX_LOW1']) / (df['PX_HIGH1'] - df['PX_LOW1'])
+        df['second_close_position'] = (df['PX_LAST2'] - df['PX_LOW2']) / (df['PX_HIGH2'] - df['PX_LOW2'])
+
         # Volume and OI momentum
-        df['volume_momentum'] = df['volume_ratio'].rolling(5).mean()
-        df['oi_momentum'] = df['oi_ratio_pct'].rolling(5).mean()
-        
+        df['volume_momentum'] = df['Vol Ratio'].rolling(5).mean()
+        df['oi_momentum'] = df['OI Ratio'].rolling(5).mean()
+
         # Calendar spread momentum
-        df['spread_momentum_5'] = df['calendar_spread'].rolling(5).mean()
-        df['spread_momentum_10'] = df['calendar_spread'].rolling(10).mean()
-        df['spread_volatility'] = df['calendar_spread'].rolling(10).std()
-        
+        df['spread_momentum_5'] = df['CALENDAR'].rolling(5).mean()
+        df['spread_momentum_10'] = df['CALENDAR'].rolling(10).mean()
+        df['spread_volatility'] = df['CALENDAR'].rolling(10).std()
+
         # Relative strength
-        df['front_vs_second_strength'] = df['front_close'] / df['second_close']
-        
+        df['front_vs_second_strength'] = df['PX_LAST1'] / df['PX_LAST2']
+    
         return df
     
     def preprocess_data(self) -> pd.DataFrame:

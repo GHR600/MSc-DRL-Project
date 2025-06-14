@@ -45,16 +45,15 @@ TEST_RATIO = 0.15
 
 # Feature columns (based on your CSV structure)
 FEATURE_COLUMNS = [
-    'front_open', 'front_high', 'front_low', 'front_close', 'front_volume', 'front_oi',
-    'second_open', 'second_high', 'second_low', 'second_close', 'second_volume', 'second_oi',
-    'front_vol_change', 'front_vol_change_pct', 'front_oi_change', 'front_oi_change_pct',
-    'calendar_spread', 'volume_ratio', 'volume_ratio_change', 'oi_ratio_pct', 
-    'oi_ratio_change_pct', 'second_vol_change', 'second_vol_change_pct', 
-    'second_oi_change', 'second_oi_change_pct'
+    'PX_OPEN1', 'PX_HIGH1', 'PX_LOW1', 'PX_LAST1', 'PX_VOLUME1', 'OPEN_INT1',
+    'PX_OPEN2', 'PX_HIGH2', 'PX_LOW2', 'PX_LAST2', 'PX_VOLUME2', 'OPEN_INT2',
+    'VOL Change1', 'Vol Change %1', 'OI Change1', 'OI Change %1',
+    'CALENDAR', 'Vol Ratio', 'Vol Ratio Change', 'OI Ratio', 'OI Ratio Change',
+    'VOL Change2', 'Vol Change %2', 'OI Change2', 'OI Change %2'
 ]
 
-TARGET_COLUMN = 'calendar_spread'  # Primary trading target
-DATE_COLUMN = 'date'
+TARGET_COLUMN = 'CALENDAR'  # What the agent trades
+DATE_COLUMN = 'Dates'       # Your date column name
 
 # =============================================================================
 # GOLDMAN ROLL PATTERN PARAMETERS
