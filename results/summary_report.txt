@@ -1,6 +1,6 @@
 
 DDQN TRADING SYSTEM - SUMMARY REPORT
-Generated: 2025-06-14 18:51:51
+Generated: 2025-06-14 18:59:16
 
 === CONFIGURATION ===
 Commodity: 10.0 per tick
@@ -15,19 +15,19 @@ Features: 25
 Date Range: 2010-01-18 00:00:00 to 2025-05-30 00:00:00
 
 === TRAINING RESULTS ===
-Episodes Trained: 22
-Final Training Reward: -19.1988
-Final Validation Reward: -15.3964
-Best Validation Performance: -50.06%
+Episodes Trained: 58
+Final Training Reward: -54.4142
+Final Validation Reward: -90.8144
+Best Validation Performance: -6.84%
 
 === BACKTESTING RESULTS ===
-Total Return: -10.23%
-Sharpe Ratio: -1.31
-Maximum Drawdown: 10.75%
+Total Return: -50.02%
+Sharpe Ratio: -77.20
+Maximum Drawdown: 50.02%
 Win Rate: 0.0%
 Profit Factor: inf
-Total Trades: 2
-Final Equity: $8,976.80
+Total Trades: 14
+Final Equity: $4,998.40
 
 === RISK METRICS ===
 Transaction Costs: $2.5 per contract
@@ -38,6 +38,5 @@ Stop Loss: 50.0%
 === ACTION ANALYSIS ===
 Most Used Action: 0
 Action Distribution:
-  Action 8 (+100%): 2 times (0.3%)
-  Action 7 (+75%): 190 times (33.0%)
-  Action 0 (-100%): 383 times (66.6%)
+  Action 0 (-100%): 14 times (50.0%)
+  Action 8 (+100%): 14 times (50.0%)
