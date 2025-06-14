@@ -15,7 +15,7 @@ MAX_CONTRACTS = 8  # Maximum position size
 TRANSACTION_COST_PER_CONTRACT = 2.50  # Transaction cost per contract
 
 # Slippage settings
-BID_ASK_SLIPPAGE = 0.5  # Slippage in ticks per contract
+BID_ASK_SLIPPAGE = 2  # Slippage in ticks per contract
 SLIPPAGE_ENABLED = True
 
 # =============================================================================
@@ -24,7 +24,7 @@ SLIPPAGE_ENABLED = True
 
 MAX_DAILY_LOSS = 500.0  # Maximum daily loss in dollars
 STOP_LOSS_ENABLED = True
-STOP_LOSS_PERCENTAGE = 0.02  # 2% stop loss on total capital
+STOP_LOSS_PERCENTAGE = 0.5  # 2% stop loss on total capital
 
 # Position limits
 MIN_POSITION_SIZE = 1  # Minimum position size in contracts
@@ -35,7 +35,7 @@ POSITION_SIZE_INCREMENT = 1  # Position size increments
 # =============================================================================
 
 # Lookback window for CNN
-LOOKBACK_WINDOW = 90  # Days to look back (adjustable: 20-252)
+LOOKBACK_WINDOW = 180  # Days to look back (adjustable: 20-252)
 MIN_LOOKBACK_FOR_TRAINING = 120  # Minimum data needed before training starts
 
 # Data splits
@@ -76,7 +76,7 @@ CNN_DROPOUT = 0.2
 # DDQN Architecture
 HIDDEN_DIMS = [512, 256, 128]  # Hidden layer dimensions
 LEARNING_RATE = 0.001
-BATCH_SIZE = 64
+BATCH_SIZE = 8
 GAMMA = 0.99  # Discount factor
 TAU = 0.005   # Soft update parameter
 
@@ -96,12 +96,12 @@ ACTION_SPACE_SIZE = len(POSITION_ACTIONS)
 # =============================================================================
 
 # Reward function weights
-REWARD_PNL_WEIGHT = 0.6        # Weight for P&L component
-REWARD_WINRATE_WEIGHT = 0.3    # Weight for win rate component  
-REWARD_RISK_WEIGHT = 0.1       # Weight for risk penalty component
+REWARD_PNL_WEIGHT = 0.8        # Weight for P&L component
+REWARD_WINRATE_WEIGHT = 0.2    # Weight for win rate component  
+REWARD_RISK_WEIGHT = 0.0       # Weight for risk penalty component
 
 # Risk penalty parameters
-DRAWDOWN_PENALTY_THRESHOLD = 0.05  # 5% drawdown threshold
+DRAWDOWN_PENALTY_THRESHOLD = 0.1  # 5% drawdown threshold
 POSITION_SIZE_PENALTY = 0.01       # Penalty for large positions
 
 # =============================================================================
@@ -109,9 +109,9 @@ POSITION_SIZE_PENALTY = 0.01       # Penalty for large positions
 # =============================================================================
 
 # Training schedule
-EPISODES = 1000
-MEMORY_SIZE = 50000
-UPDATE_FREQUENCY = 4
+EPISODES = 2000
+MEMORY_SIZE = 10000
+UPDATE_FREQUENCY = 6
 TARGET_UPDATE_FREQUENCY = 1000
 
 # Exploration parameters
@@ -120,7 +120,7 @@ EPSILON_END = 0.01
 EPSILON_DECAY = 0.995
 
 # Early stopping
-PATIENCE = 50  # Episodes without improvement before stopping
+PATIENCE = 20  # Episodes without improvement before stopping
 MIN_IMPROVEMENT = 0.001
 
 # =============================================================================
@@ -136,7 +136,7 @@ NUM_WORKERS = 4  # For data loading
 # =============================================================================
 
 # Logging frequency
-LOG_FREQUENCY = 10  # Episodes
+LOG_FREQUENCY = 5  # Episodes
 SAVE_FREQUENCY = 100  # Episodes
 
 # Paths
@@ -167,9 +167,9 @@ TRACK_METRICS = [
 # =============================================================================
 
 # Use smaller dataset for initial testing
-QUICK_TEST_MODE = True
-QUICK_TEST_YEARS = 2  # Use 2 years of data (1 train, 1 test)
-QUICK_TEST_EPISODES = 100  # Fewer episodes for quick testing
+QUICK_TEST_MODE = False
+QUICK_TEST_YEARS = 3  # Use 2 years of data (1 train, 1 test)
+QUICK_TEST_EPISODES = 1000  # Fewer episodes for quick testing
 
 print(f"Configuration loaded successfully!")
 print(f"Device: {DEVICE}")

@@ -232,7 +232,12 @@ class TradingEnvironment:
             config.REWARD_WINRATE_WEIGHT * win_rate_reward -
             config.REWARD_RISK_WEIGHT * risk_penalty
         )
-        
+
+        #print(f"Daily PnL: {self.daily_pnl:.2f}")
+        #print(f"PnL Reward Component: {pnl_reward:.4f}")
+        #print(f"Final Reward: {reward:.4f}")
+        #print(f"Win Rate Reward Component: {win_rate_reward:.4f}")
+
         return reward
     
     def _record_trade(self):

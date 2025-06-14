@@ -54,6 +54,12 @@ class TradingDataHandler:
         print(f"Loaded {len(self.raw_data)} rows of data")
         print(f"Date range: {self.raw_data['Dates'].min()} to {self.raw_data['Dates'].max()}")
 
+        print(f"CALENDAR spread stats:")
+        print(f"  Min: {self.raw_data['CALENDAR'].min()}")
+        print(f"  Max: {self.raw_data['CALENDAR'].max()}")
+        print(f"  Mean: {self.raw_data['CALENDAR'].mean()}")
+        print(f"  Std: {self.raw_data['CALENDAR'].std()}")
+
         
         return self.raw_data
     
@@ -156,34 +162,43 @@ class TradingDataHandler:
     def create_sequences(self, df: pd.DataFrame, lookback: int = None) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Create sequences for CNN input
-        
+    
         Returns:
-            features: (n_samples, n_features, lookback_window)
-            targets: (n_samples,) - calendar spread values
-            dates: (n_samples,) - corresponding dates
+        features: (n_samples, n_features, lookback_window)
+        targets: (n_samples,) - calendar spread values
+        dates: (n_samples,) - corresponding dates
         """
         if lookback is None:
             lookback = config.LOOKBACK_WINDOW
-            
-        # Get feature columns (exclude date and some engineered features)
-        feature_cols = [col for col in df.columns if col not in ['date']]
         
+        # Get feature columns (exclude date columns and any engineered date features)
+        feature_cols = [col for col in df.columns if col not in ['date', 'Dates']]
+    
+        # Also exclude any datetime-related engineered features
+        feature_cols = [col for col in feature_cols if not col.startswith('business_day')]
+        feature_cols = [col for col in feature_cols if not col.startswith('days_')]
+        feature_cols = [col for col in feature_cols if not col.startswith('in_goldman')]
+        feature_cols = [col for col in feature_cols if not col.startswith('in_extended')]
+    
+        print(f"Using {len(feature_cols)} features for training")
+        print(f"Features: {feature_cols}...")  # Print first 5 feature names
+    
         # Normalize features
         feature_data = self.scaler.fit_transform(df[feature_cols])
-        
+    
         sequences = []
         targets = []
         dates = []
-        
+    
         for i in range(lookback, len(df)):
             # Get sequence of features
             sequence = feature_data[i-lookback:i].T  # Transpose to (n_features, lookback)
             sequences.append(sequence)
-            
+        
             # Target is the calendar spread at current time
             targets.append(df.iloc[i][self.target_column])
-            dates.append(df.iloc[i]['date'])
-        
+            dates.append(df.iloc[i]['Dates'])  # Use 'Dates' instead of 'date'
+    
         return np.array(sequences), np.array(targets), np.array(dates)
     
     def split_data(self, sequences: np.ndarray, targets: np.ndarray, dates: np.ndarray, 

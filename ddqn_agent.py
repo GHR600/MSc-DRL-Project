@@ -132,6 +132,9 @@ class DDQNTradingAgent:
                     self.training_metrics['q_values'].append(q_values.cpu().numpy()[0])
                     self.training_metrics['actions_taken'].append(('greedy', action))
         
+
+        #print(f"Action taken: {action} ({config.POSITION_ACTIONS[action]:+.0%})")
+        
         return action
     
     def store_transition(self, state: np.ndarray, action: int, reward: float,
