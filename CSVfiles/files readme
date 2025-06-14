@@ -1,0 +1,37 @@
+### Each file contains data for that product's first and second futures contract 
+###(i.e. active front month and second month, June and July for example)
+
+### Variables are, from bloomberg: Date, Open, High, Low, Close, volume, open intrest (OI)
+### added variables: daily volume change, daily volume change %, daily OI change, daily OI change %, 
+### volume ratio, volume ratio change %, oi ratio, oi ratio change %
+All the above are for each contract, front month and second month
+And most impotant variable - the "calendar spread" (front month - second month price)
+
+Columns: 
+
+A - front open
+B - front high
+C - front low
+D - front close
+E - front volume
+F - front OI
+G - second open
+H - second high
+I - second low
+J - second close
+K - second volume
+L - second oi
+M - DATE
+N - front vol change
+O - front vol change %
+P - front oi change
+Q - front oi change %
+R - CALENDAR SPREAD
+S - Volume ratio
+T - volume ratio change
+U - oi ratio %
+V - oi ratio change %
+W - second vol change
+X - second vol change %
+U - second oi change
+Z - second oi change %
