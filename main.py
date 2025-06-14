@@ -401,8 +401,13 @@ if __name__ == "__main__":
         main(csv_file_path)
     else:
         # For testing - you would replace this with your actual file path
-        csv_file_path = "your_trading_data.csv"
+        
+        csv_file_path  = "/home/k24104079/MSc code/MSc-DRL-Project/CSVfiles/CO12 - Sheet1.csv"
+        
+        
+        
         print(f"No CSV file provided. Please run with: python main.py your_data.csv")
         print(f"Or modify the csv_file_path variable in main() and uncomment the line below.")
-        # main(csv_file_path)  # Uncomment this line and provide your CSV path
+        main(csv_file_path)  # Uncomment this line and provide your CSV path
+
 

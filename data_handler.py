@@ -37,22 +37,23 @@ class TradingDataHandler:
         
         # Load CSV with proper column names
         column_names = [
-            'front_open', 'front_high', 'front_low', 'front_close', 'front_volume', 'front_oi',
-            'second_open', 'second_high', 'second_low', 'second_close', 'second_volume', 'second_oi',
-            'date', 'front_vol_change', 'front_vol_change_pct', 'front_oi_change', 'front_oi_change_pct',
-            'calendar_spread', 'volume_ratio', 'volume_ratio_change', 'oi_ratio_pct', 
-            'oi_ratio_change_pct', 'second_vol_change', 'second_vol_change_pct', 
-            'second_oi_change', 'second_oi_change_pct'
-        ]
+            'PX_OPEN1', 'PX_HIGH1', 'PX_LOW1', 'PX_LAST1', 'PX_VOLUME1', 'OPEN_INT1',
+            'PX_OPEN2', 'PX_HIGH2', 'PX_LOW2', 'PX_LAST2', 'PX_VOLUME2', 'OPEN_INT2',
+            'Dates', 'VOL Change1', 'Vol Change %1', 'OI Change1', 'OI Change %1',
+            'CALENDAR', 'Vol Ratio', 'Vol Ratio Change', 'OI Ratio', 'OI Ratio Change',
+            'VOL Change2', 'Vol Change %2', 'OI Change2', 'OI Change %2'
+            ]
         
-        self.raw_data = pd.read_csv(self.csv_path, names=column_names, header=0)
+        self.raw_data = pd.read_csv(self.csv_path, names=column_names, header=None, skiprows=2)
         
-        # Convert date column
-        self.raw_data['date'] = pd.to_datetime(self.raw_data['date'])
-        self.raw_data = self.raw_data.sort_values('date').reset_index(drop=True)
-        
+        # Convert date column 
+        self.raw_data['Dates'] = pd.to_datetime(self.raw_data['Dates'], dayfirst=True)
+        self.raw_data = self.raw_data.sort_values('Dates').reset_index(drop=True)
+        self.raw_data['date'] = self.raw_data['Dates']
+
         print(f"Loaded {len(self.raw_data)} rows of data")
-        print(f"Date range: {self.raw_data['date'].min()} to {self.raw_data['date'].max()}")
+        print(f"Date range: {self.raw_data['Dates'].min()} to {self.raw_data['Dates'].max()}")
+
         
         return self.raw_data
     
@@ -61,7 +62,7 @@ class TradingDataHandler:
         df = df.copy()
         
         # Calculate business day of month
-        df['business_day_of_month'] = df['date'].apply(self._get_business_day_of_month)
+        df['business_day_of_month'] = df['Dates'].apply(self._get_business_day_of_month)
         
         # Calculate days until/since Goldman roll period
         df['days_to_roll_start'] = df['business_day_of_month'].apply(

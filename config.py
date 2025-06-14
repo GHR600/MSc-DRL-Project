@@ -155,7 +155,7 @@ SAVE_PLOTS = True
 # =============================================================================
 
 # Initial capital
-INITIAL_CAPITAL = 100000.0  # $100,000 starting capital
+INITIAL_CAPITAL = 10000.0 
 
 # Performance metrics to track
 TRACK_METRICS = [
