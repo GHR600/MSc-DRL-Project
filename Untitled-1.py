@@ -1,2 +1,0 @@
-print("firts attempt")
-
