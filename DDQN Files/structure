@@ -1,0 +1,9 @@
+trading_ddqn/
+├── main.py              # Main execution script
+├── config.py            # Configuration settings (MODIFY THIS FOR YOUR NEEDS)
+├── data_handler.py      # Data loading and preprocessing
+├── environment.py       # Trading environment simulation
+├── ddqn_agent.py       # DDQN agent implementation
+├── networks.py         # Neural network architectures
+├── requirements.txt    # Python dependencies
+└── README.md           # This file
