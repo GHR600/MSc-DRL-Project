@@ -110,7 +110,7 @@ POSITION_SIZE_PENALTY = 0.01       # Penalty for large positions
 
 # Training schedule
 EPISODES = 2000  # Number of complete runs through data
-MEMORY_SIZE = 2000  # How many past experiences the agent remembers.
+MEMORY_SIZE = 4000  # How many past experiences the agent remembers.
 UPDATE_FREQUENCY = 4  # How often the network trains
 TARGET_UPDATE_FREQUENCY = 200
 
@@ -120,7 +120,7 @@ EPSILON_END = 0.01      # Final exploration (1%)
 EPSILON_DECAY = 0.999   #  How fast to reduce exploration
 
 # Early stopping
-PATIENCE = 30  # Episodes without improvement before stopping
+PATIENCE = 300  # Episodes without improvement before stopping
 MIN_IMPROVEMENT = 0.001
 
 # =============================================================================

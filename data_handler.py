@@ -44,7 +44,7 @@ class TradingDataHandler:
             'VOL Change2', 'Vol Change %2', 'OI Change2', 'OI Change %2'
             ]
         
-        self.raw_data = pd.read_csv(self.csv_path, names=column_names, header=None, skiprows=2)
+        self.raw_data = pd.read_csv(self.csv_path, names=column_names, header=None, skiprows=3)
         
         # Convert date column 
         self.raw_data['Dates'] = pd.to_datetime(self.raw_data['Dates'], dayfirst=True)

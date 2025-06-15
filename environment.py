@@ -108,9 +108,15 @@ class TradingEnvironment:
         if self.current_step >= self.n_samples - 1:
             return self._get_state(), 0.0, True, {'reason': 'end_of_data'}
         
+     
+
         # Get current and next prices
         current_price = self.data_targets[self.current_step]
         next_price = self.data_targets[self.current_step + 1]
+
+        # Get OI Ratio from data        
+        oi_ratio_feature_index = 15  # OI ratio is column 15 in FEATURE_COLUMNS
+        self.current_oi_ratio = self.data_sequences[self.current_step][oi_ratio_feature_index][-1]  # Get latest value
         
         # Calculate position change from action
         position_change_pct = config.POSITION_ACTIONS[action]
@@ -207,37 +213,42 @@ class TradingEnvironment:
         """Calculate reward based on multiple factors"""
         current_equity = self.cash + self.unrealized_pnl
         
+         #Get current OI Ratio from your data
+        # You'll need to find which index in your features corresponds to 'OI Ratio'
+        current_state = self._get_state()
+        # Assuming OI Ratio is in your market features - you'll need to identify the exact index
+    
+        # For now, let's add it to the step method where we have access to the data
+        # We'll pass it as a parameter or store it as an instance variable
+    
         # P&L component (normalized by initial capital)
         pnl_reward = self.daily_pnl / self.initial_capital
-        
+    
         # Win rate component
         win_rate = self.winning_trades / max(1, self.total_trades)
-        win_rate_reward = (win_rate - 0.5) * 2  # Scale to -1 to 1
-        
+        win_rate_reward = (win_rate - 0.5) * 2
+    
+        # OI Ratio constraint penalty
+        oi_penalty = 0.0
+        if hasattr(self, 'current_oi_ratio') and self.current_oi_ratio >= 1.0:
+            if self.position != 0:
+                oi_penalty = 5.0  # Strong penalty for trading when OI ratio >= 1
+            else:
+                oi_penalty = -0.1  # Small bonus for staying flat when OI ratio >= 1
+    
         # Risk penalty component
         risk_penalty = 0.0
-        
-        # Drawdown penalty
         if self.max_drawdown > config.DRAWDOWN_PENALTY_THRESHOLD:
             risk_penalty += (self.max_drawdown - config.DRAWDOWN_PENALTY_THRESHOLD) * 10
-        
-        # Position size penalty (encourage reasonable position sizing)
-        position_ratio = abs(self.position) / self.max_contracts
-        if position_ratio > 0.8:  # Penalty for using >80% of max position
-            risk_penalty += (position_ratio - 0.8) * config.POSITION_SIZE_PENALTY
-        
+    
         # Combine components
         reward = (
             config.REWARD_PNL_WEIGHT * pnl_reward +
             config.REWARD_WINRATE_WEIGHT * win_rate_reward -
-            config.REWARD_RISK_WEIGHT * risk_penalty
-        )
-
-        #print(f"Daily PnL: {self.daily_pnl:.2f}")
-        #print(f"PnL Reward Component: {pnl_reward:.4f}")
-        #print(f"Final Reward: {reward:.4f}")
-        #print(f"Win Rate Reward Component: {win_rate_reward:.4f}")
-
+            config.REWARD_RISK_WEIGHT * risk_penalty -
+            oi_penalty  # Subtract OI penalty
+        )   
+    
         return reward
     
     def _record_trade(self):
