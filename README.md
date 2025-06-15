@@ -31,15 +31,15 @@ trading_ddqn/
 
 ## Quick Start
 
-### 1. Install Dependencies
+### 1. Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. Prepare Your Data
+### 2. Data
 
-Your CSV file should have 26 columns in this exact order:
+CSV files have 26 columns:
 - A: front_open
 - B: front_high  
 - C: front_low
@@ -89,7 +89,7 @@ TICK_VALUE = 12.50
 python main.py your_data.csv
 ```
 
-## Key Configuration Parameters
+## Configuration Parameters
 
 ### Market Parameters (config.py)
 - `TICK_VALUE`: Dollar value per tick movement
@@ -177,8 +177,6 @@ Key files generated:
 - Use GPU if available (automatically detected)
 - Reduce `BATCH_SIZE` if memory limited
 - Decrease `LOOKBACK_WINDOW` for faster processing
-
-## Troubleshooting
 
 ### Common Issues
 
