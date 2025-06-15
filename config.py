@@ -120,7 +120,7 @@ EPSILON_END = 0.01      # Final exploration (1%)
 EPSILON_DECAY = 0.999   #  How fast to reduce exploration
 
 # Early stopping
-PATIENCE = 300  # Episodes without improvement before stopping
+PATIENCE = 50  # Episodes without improvement before stopping
 MIN_IMPROVEMENT = 0.001
 
 # =============================================================================
@@ -136,8 +136,8 @@ NUM_WORKERS = 4  # For data loading
 # =============================================================================
 
 # Logging frequency
-LOG_FREQUENCY = 5  # Episodes
-SAVE_FREQUENCY = 10  # Episodes
+LOG_FREQUENCY = 10  # Episodes
+SAVE_FREQUENCY = 100  # Episodes
 
 # Paths
 MODEL_SAVE_PATH = "models/"
