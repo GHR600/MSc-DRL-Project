@@ -12,10 +12,10 @@ import torch
 # Commodity-specific settings
 TICK_VALUE = 10.0  # $10 for crude, $12.50 for wheat/corn, $25 for LS Gasoil
 MAX_CONTRACTS = 8  # Maximum position size
-TRANSACTION_COST_PER_CONTRACT = 2.50  # Transaction cost per contract
+TRANSACTION_COST_PER_CONTRACT = 1.50  # Transaction cost per contract
 
 # Slippage settings
-BID_ASK_SLIPPAGE = 2  # Slippage in ticks per contract
+BID_ASK_SLIPPAGE = 1  # Slippage in ticks per contract
 SLIPPAGE_ENABLED = True
 
 # =============================================================================
@@ -24,7 +24,7 @@ SLIPPAGE_ENABLED = True
 
 MAX_DAILY_LOSS = 500.0  # Maximum daily loss in dollars
 STOP_LOSS_ENABLED = True
-STOP_LOSS_PERCENTAGE = 0.5  # 2% stop loss on total capital
+STOP_LOSS_PERCENTAGE = 0.1  # 2% stop loss on total capital
 
 # Position limits
 MIN_POSITION_SIZE = 1  # Minimum position size in contracts
@@ -35,7 +35,7 @@ POSITION_SIZE_INCREMENT = 1  # Position size increments
 # =============================================================================
 
 # Lookback window for CNN
-LOOKBACK_WINDOW = 180  # Days to look back (adjustable: 20-252)
+LOOKBACK_WINDOW = 120  # Days to look back (adjustable: 20-252)
 MIN_LOOKBACK_FOR_TRAINING = 120  # Minimum data needed before training starts
 
 # Data splits
@@ -64,19 +64,19 @@ GOLDMAN_ROLL_START_DAY = 5  # 5th business day
 GOLDMAN_ROLL_END_DAY = 9    # 9th business day
 GOLDMAN_ROLL_WINDOW = 15    # Total window around roll (5 before, 5 during, 5 after)
 
-# =============================================================================
+# =========================================# Larger = more complex network====================================
 # NEURAL NETWORK PARAMETERS
 # =============================================================================
 
 # CNN Architecture
-CNN_CHANNELS = [32, 64, 128]  # Channel progression
-CNN_KERNEL_SIZES = [3, 3, 3]  # Kernel sizes for each layer
-CNN_DROPOUT = 0.2
+CNN_CHANNELS = [32, 64, 128]  # Channel progression, More channels = more complex
+CNN_KERNEL_SIZES = [3, 3, 3]  # Kernel sizes for each layer, Larger kernels see longer patterns
+CNN_DROPOUT = 0.2             # Higher = more regularization
 
 # DDQN Architecture
-HIDDEN_DIMS = [512, 256, 128]  # Hidden layer dimensions
-LEARNING_RATE = 0.001
-BATCH_SIZE = 8
+HIDDEN_DIMS = [512, 256, 128]  # Hidden layer dimensions, # Larger = more complex network
+LEARNING_RATE = 0.001   # Decrease for more stable (0.0001) or increase for faster (0.01)
+BATCH_SIZE = 8     # Smaller = more stable, larger = faster
 GAMMA = 0.99  # Discount factor
 TAU = 0.005   # Soft update parameter
 
@@ -85,7 +85,7 @@ TAU = 0.005   # Soft update parameter
 # =============================================================================
 
 # Position changes (as percentages of max position)
-POSITION_ACTIONS = [-1.0, -0.75, -0.5, -0.25, 0.0, 0.25, 0.5, 0.75, 1.0]
+POSITION_ACTIONS = [-1.0, -0.5, 0.0, 0.5, 1.0]
 # Negative = reduce long/increase short, Positive = increase long/reduce short
 
 # Action mapping
@@ -97,8 +97,8 @@ ACTION_SPACE_SIZE = len(POSITION_ACTIONS)
 
 # Reward function weights
 REWARD_PNL_WEIGHT = 0.8        # Weight for P&L component
-REWARD_WINRATE_WEIGHT = 0.2    # Weight for win rate component  
-REWARD_RISK_WEIGHT = 0.0       # Weight for risk penalty component
+REWARD_WINRATE_WEIGHT = 0.1    # Weight for win rate component  
+REWARD_RISK_WEIGHT = 0.1       # Weight for risk penalty component
 
 # Risk penalty parameters
 DRAWDOWN_PENALTY_THRESHOLD = 0.1  # 5% drawdown threshold
@@ -109,18 +109,18 @@ POSITION_SIZE_PENALTY = 0.01       # Penalty for large positions
 # =============================================================================
 
 # Training schedule
-EPISODES = 2000
-MEMORY_SIZE = 10000
-UPDATE_FREQUENCY = 6
-TARGET_UPDATE_FREQUENCY = 1000
+EPISODES = 2000  # Number of complete runs through data
+MEMORY_SIZE = 2000  # How many past experiences the agent remembers.
+UPDATE_FREQUENCY = 4  # How often the network trains
+TARGET_UPDATE_FREQUENCY = 200
 
 # Exploration parameters
-EPSILON_START = 1.0
-EPSILON_END = 0.01
-EPSILON_DECAY = 0.995
+EPSILON_START = 1.0     # Starting exploration (100%)
+EPSILON_END = 0.01      # Final exploration (1%)
+EPSILON_DECAY = 0.999   #  How fast to reduce exploration
 
 # Early stopping
-PATIENCE = 20  # Episodes without improvement before stopping
+PATIENCE = 30  # Episodes without improvement before stopping
 MIN_IMPROVEMENT = 0.001
 
 # =============================================================================
@@ -137,7 +137,7 @@ NUM_WORKERS = 4  # For data loading
 
 # Logging frequency
 LOG_FREQUENCY = 5  # Episodes
-SAVE_FREQUENCY = 100  # Episodes
+SAVE_FREQUENCY = 10  # Episodes
 
 # Paths
 MODEL_SAVE_PATH = "models/"
