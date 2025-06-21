@@ -234,7 +234,7 @@ class TradingEnvironment:
             if self.position != 0:
                 oi_penalty = 5.0  # Strong penalty for trading when OI ratio >= 1
             else:
-                oi_penalty = -0.1  # Small bonus for staying flat when OI ratio >= 1
+                oi_penalty = -1  # Small bonus for staying flat when OI ratio >= 1
     
         # Risk penalty component
         risk_penalty = 0.0
