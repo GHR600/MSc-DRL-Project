@@ -70,8 +70,8 @@ GOLDMAN_ROLL_WINDOW = 15    # Total window around roll (5 before, 5 during, 5 af
 
 # LSTM Architecture
 LSTM_HIDDEN_SIZE = 200        # Hidden state size
-LSTM_NUM_LAYERS = 5           # Number of LSTM layers (2-3 typical)
-LSTM_DROPOUT = 0.1            # Dropout between LSTM layers
+LSTM_NUM_LAYERS = 3           # Number of LSTM layers (2-3 typical)
+LSTM_DROPOUT = 0.3            # Dropout between LSTM layers
 LSTM_BIDIRECTIONAL = False    # Whether to use bidirectional LSTM
 LSTM_PROCESSING_DIM = 256     # Size of post-LSTM processing layers
 
@@ -84,7 +84,7 @@ HIDDEN_DIMS = [512, 256, 128]  # Sizes of hidden layers in DQN head
 LEARNING_RATE = 0.0001        # Adam learning rate
 GAMMA = 0.99                  # Discount factor for future rewards
 TAU = 0.005                   # Soft update rate for target network
-BATCH_SIZE = 32               # Training batch size
+BATCH_SIZE = 16               # Training batch size
 
 # =============================================================================
 # ACTION SPACE PARAMETERS
@@ -115,7 +115,7 @@ POSITION_SIZE_PENALTY = 0.01       # Penalty for large positions
 # =============================================================================
 
 # Training schedule
-EPISODES = 1000  # Number of complete runs through data
+EPISODES = 10000  # Number of complete runs through data
 MEMORY_SIZE = 4000  # How many past experiences the agent remembers.
 UPDATE_FREQUENCY = 3  # How often the network trains
 TARGET_UPDATE_FREQUENCY = 200
