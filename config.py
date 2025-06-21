@@ -56,7 +56,7 @@ TARGET_COLUMN = 'CALENDAR'  # What the agent trades
 DATE_COLUMN = 'Dates'       # Your date column name
 
 # =============================================================================
-# GOLDMAN ROLL PATTERN PARAMETERS
+# GOLDMAN ROLL PATTERN PARAMETERS - saving??
 # =============================================================================
 
 # Goldman roll typically occurs 5th-9th business day of month
