@@ -8,8 +8,8 @@ This system is designed to trade calendar spreads (price difference between fron
 
 ## Features
 
-- **CNN-DDQN Architecture**: Combines 1D CNN for temporal feature extraction with Double DQN for decision making
-- **Flexible Position Management**: Trade in 25% increments, build positions over multiple days
+- ??????**CNN-DDQN Architecture**: Combines 1D CNN for temporal feature extraction with Double DQN for decision making
+- ?????**Flexible Position Management**: Trade in 25% increments, build positions over multiple days
 - **Risk Management**: Configurable stop-loss, daily loss limits, and position constraints
 - **Goldman Roll Detection**: Automatic calculation of business days and roll periods
 - **Comprehensive Backtesting**: Detailed performance metrics and visualizations
@@ -37,7 +37,7 @@ trading_ddqn/
 pip install -r requirements.txt
 ```
 
-### 2. Data
+??????? - also needs a fix ### 2. Data
 
 CSV files have 26 columns:
 - A: front_open
@@ -235,4 +235,3 @@ Modify config.py and run multiple experiments with different:
 4. Implement live trading integration (not included)
 5. Add additional features or modify strategy logic
 
-Remember: This is a research/backtesting system. Always validate results and implement proper risk management before any live trading.
