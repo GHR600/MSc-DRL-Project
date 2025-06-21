@@ -64,21 +64,17 @@ GOLDMAN_ROLL_START_DAY = 5  # 5th business day
 GOLDMAN_ROLL_END_DAY = 9    # 9th business day
 GOLDMAN_ROLL_WINDOW = 15    # Total window around roll (5 before, 5 during, 5 after)
 
-# =========================================# Larger = more complex network====================================
-# NEURAL NETWORK PARAMETERS
+# =============================================================================
+# LSTM PARAMETERS (replaces CNN parameters)
 # =============================================================================
 
-# CNN Architecture
-CNN_CHANNELS = [32, 64, 128]  # Channel progression, More channels = more complex
-CNN_KERNEL_SIZES = [3, 3, 3]  # Kernel sizes for each layer, Larger kernels see longer patterns
-CNN_DROPOUT = 0.2             # Higher = more regularization
+# LSTM Architecture
+LSTM_HIDDEN_SIZE = 128        # Hidden state size
+LSTM_NUM_LAYERS = 2           # Number of LSTM layers (2-3 typical)
+LSTM_DROPOUT = 0.2            # Dropout between LSTM layers
+LSTM_BIDIRECTIONAL = False    # Whether to use bidirectional LSTM
+LSTM_PROCESSING_DIM = 256     # Size of post-LSTM processing layers
 
-# DDQN Architecture
-HIDDEN_DIMS = [512, 256, 128]  # Hidden layer dimensions, # Larger = more complex network
-LEARNING_RATE = 0.001   # Decrease for more stable (0.0001) or increase for faster (0.01)
-BATCH_SIZE = 8     # Smaller = more stable, larger = faster
-GAMMA = 0.99  # Discount factor
-TAU = 0.005   # Soft update parameter
 
 # =============================================================================
 # ACTION SPACE PARAMETERS
@@ -137,7 +133,7 @@ NUM_WORKERS = 4  # For data loading
 
 # Logging frequency
 LOG_FREQUENCY = 10  # Episodes
-SAVE_FREQUENCY = 100  # Episodes
+SAVE_FREQUENCY = 250  # Episodes
 
 # Paths
 MODEL_SAVE_PATH = "models/"

@@ -99,7 +99,7 @@ class DDQNTradingAgent:
         trading_state = state[market_size:]
         
         # Convert to tensors and add batch dimension
-        market_tensor = torch.FloatTensor(market_features).unsqueeze(0).to(config.DEVICE)
+        market_tensor = torch.FloatTensor(market_features).permute(1, 0).unsqueeze(0).to(config.DEVICE)
         trading_tensor = torch.FloatTensor(trading_state).unsqueeze(0).to(config.DEVICE)
         
         return market_tensor, trading_tensor

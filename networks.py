@@ -1,6 +1,6 @@
 """
 Neural Network Architectures for DDQN Trading System
-Combines CNN for feature extraction with DDQN for trading decisions
+Combines LSTM for feature extraction with DDQN for trading decisions
 """
 
 import torch
@@ -9,97 +9,104 @@ import torch.nn.functional as F
 import numpy as np
 import config
 
-class CNNFeatureExtractor(nn.Module):
+class LSTMFeatureExtractor(nn.Module):
     """
-    1D CNN for extracting features from time series data
-    Processes (n_features, lookback_window) sequences
+    LSTM for extracting features from time series data
+    Processes (batch_size, sequence_length, n_features) sequences
     """
     
-    def __init__(self, n_features: int, lookback_window: int):
-        super(CNNFeatureExtractor, self).__init__()
+    def __init__(self, n_features: int, sequence_length: int):
+        super(LSTMFeatureExtractor, self).__init__()
         
         self.n_features = n_features
-        self.lookback_window = lookback_window
+        self.sequence_length = sequence_length
         
-        # CNN layers for temporal feature extraction
-        self.conv_layers = nn.ModuleList()
+        # LSTM parameters
+        self.hidden_size = config.LSTM_HIDDEN_SIZE
+        self.num_layers = config.LSTM_NUM_LAYERS
+        self.dropout = config.LSTM_DROPOUT
         
-        # First convolution layer
-        self.conv_layers.append(
-            nn.Conv1d(
-                in_channels=n_features,
-                out_channels=config.CNN_CHANNELS[0],
-                kernel_size=config.CNN_KERNEL_SIZES[0],
-                padding=config.CNN_KERNEL_SIZES[0]//2
-            )
+        # LSTM layers
+        self.lstm = nn.LSTM(
+            input_size=n_features,
+            hidden_size=self.hidden_size,
+            num_layers=self.num_layers,
+            dropout=self.dropout if self.num_layers > 1 else 0,
+            batch_first=True,
+            bidirectional=config.LSTM_BIDIRECTIONAL
         )
         
-        # Additional convolution layers
-        for i in range(1, len(config.CNN_CHANNELS)):
-            self.conv_layers.append(
-                nn.Conv1d(
-                    in_channels=config.CNN_CHANNELS[i-1],
-                    out_channels=config.CNN_CHANNELS[i],
-                    kernel_size=config.CNN_KERNEL_SIZES[i],
-                    padding=config.CNN_KERNEL_SIZES[i]//2
-                )
-            )
+        # Calculate LSTM output size
+        self.lstm_output_size = self.hidden_size * (2 if config.LSTM_BIDIRECTIONAL else 1)
         
-        # Batch normalization layers
-        self.batch_norms = nn.ModuleList([
-            nn.BatchNorm1d(channels) for channels in config.CNN_CHANNELS
-        ])
+        # Additional processing layers
+        self.feature_processor = nn.Sequential(
+            nn.Linear(self.lstm_output_size, config.LSTM_PROCESSING_DIM),
+            nn.ReLU(),
+            nn.Dropout(config.LSTM_DROPOUT),
+            nn.Linear(config.LSTM_PROCESSING_DIM, config.LSTM_PROCESSING_DIM // 2),
+            nn.ReLU(),
+            nn.Dropout(config.LSTM_DROPOUT)
+        )
         
-        # Dropout for regularization
-        self.dropout = nn.Dropout(config.CNN_DROPOUT)
-        
-        # Global average pooling to reduce dimensionality
-        self.global_avg_pool = nn.AdaptiveAvgPool1d(1)
-        
-        # Calculate output dimension
-        self.output_dim = config.CNN_CHANNELS[-1]
+        # Output dimension
+        self.output_dim = config.LSTM_PROCESSING_DIM // 2
         
     def forward(self, x):
         """
-        Forward pass through CNN
+        Forward pass through LSTM
         
         Args:
-            x: Input tensor of shape (batch_size, n_features, lookback_window)
+            x: Input tensor of shape (batch_size, sequence_length, n_features)
         
         Returns:
             Extracted features of shape (batch_size, output_dim)
         """
-        # Apply convolution layers with ReLU and batch norm
-        for conv, bn in zip(self.conv_layers, self.batch_norms):
-            x = conv(x)
-            x = bn(x)
-            x = F.relu(x)
-            x = self.dropout(x)
+        # Initialize hidden state
+        batch_size = x.size(0)
+        h0 = torch.zeros(
+            self.num_layers * (2 if config.LSTM_BIDIRECTIONAL else 1),
+            batch_size,
+            self.hidden_size,
+            device=x.device
+        )
+        c0 = torch.zeros(
+            self.num_layers * (2 if config.LSTM_BIDIRECTIONAL else 1),
+            batch_size,
+            self.hidden_size,
+            device=x.device
+        )
         
-        # Global average pooling
-        x = self.global_avg_pool(x)  # (batch_size, channels, 1)
-        x = x.squeeze(-1)  # (batch_size, channels)
+        # LSTM forward pass
+        lstm_out, (hn, cn) = self.lstm(x, (h0, c0))
         
-        return x
+        # Use the last output from the sequence
+        # If bidirectional, lstm_out[:, -1, :] contains both forward and backward final states
+        final_output = lstm_out[:, -1, :]  # (batch_size, lstm_output_size)
+        
+        # Process through additional layers
+        features = self.feature_processor(final_output)
+        
+        return features
 
 class DQNNetwork(nn.Module):
     """
-    Deep Q-Network that combines CNN features with trading state features
+    Deep Q-Network that combines LSTM features with trading state features
     """
     
     def __init__(self, market_feature_dim: int, trading_state_dim: int, 
-                 action_space_size: int, lookback_window: int):
+                 action_space_size: int, sequence_length: int):
         super(DQNNetwork, self).__init__()
         
         self.market_feature_dim = market_feature_dim
         self.trading_state_dim = trading_state_dim
         self.action_space_size = action_space_size
         
-        # CNN for processing market features
-        self.cnn = CNNFeatureExtractor(market_feature_dim, lookback_window)
+        # LSTM for processing market features
+        self.lstm = LSTMFeatureExtractor(market_feature_dim, sequence_length)
         
         # Calculate total input dimension for fully connected layers
-        total_input_dim = self.cnn.output_dim + trading_state_dim
+        total_input_dim = self.lstm.output_dim + trading_state_dim
         
         # Fully connected layers for Q-value estimation
         self.fc_layers = nn.ModuleList()
@@ -117,7 +124,7 @@ class DQNNetwork(nn.Module):
         self.q_values = nn.Linear(config.HIDDEN_DIMS[-1], action_space_size)
         
         # Dropout for regularization
-        self.dropout = nn.Dropout(config.CNN_DROPOUT)
+        self.dropout = nn.Dropout(config.LSTM_DROPOUT)
         
         # Initialize weights
         self._initialize_weights()
@@ -125,27 +132,35 @@ class DQNNetwork(nn.Module):
     def _initialize_weights(self):
         """Initialize network weights using Xavier initialization"""
         for module in self.modules():
-            if isinstance(module, (nn.Linear, nn.Conv1d)):
+            if isinstance(module, nn.Linear):
                 nn.init.xavier_uniform_(module.weight)
                 if module.bias is not None:
                     nn.init.constant_(module.bias, 0)
+            elif isinstance(module, nn.LSTM):
+                for name, param in module.named_parameters():
+                    if 'weight_ih' in name:
+                        nn.init.xavier_uniform_(param.data)
+                    elif 'weight_hh' in name:
+                        nn.init.orthogonal_(param.data)
+                    elif 'bias' in name:
+                        param.data.fill_(0)
     
     def forward(self, market_features, trading_state):
         """
         Forward pass through the network
         
         Args:
-            market_features: Market data tensor (batch_size, n_features, lookback)
+            market_features: Market data tensor (batch_size, sequence_length, n_features)
             trading_state: Trading state tensor (batch_size, trading_state_dim)
         
         Returns:
             Q-values for each action (batch_size, action_space_size)
         """
-        # Extract features from market data using CNN
-        cnn_features = self.cnn(market_features)
+        # Extract features from market data using LSTM
+        lstm_features = self.lstm(market_features)
         
-        # Combine CNN features with trading state
-        combined_features = torch.cat([cnn_features, trading_state], dim=1)
+        # Combine LSTM features with trading state
+        combined_features = torch.cat([lstm_features, trading_state], dim=1)
         
         # Pass through fully connected layers
         x = combined_features
@@ -161,22 +176,22 @@ class DQNNetwork(nn.Module):
 
 class DoubleDQN(nn.Module):
     """
-    Double Deep Q-Network implementation
+    Double Deep Q-Network implementation with LSTM
     Uses two networks: online and target
     """
     
     def __init__(self, market_feature_dim: int, trading_state_dim: int,
-                 action_space_size: int, lookback_window: int):
+                 action_space_size: int, sequence_length: int):
         super(DoubleDQN, self).__init__()
         
         # Online network (updated frequently)
         self.online_net = DQNNetwork(
-            market_feature_dim, trading_state_dim, action_space_size, lookback_window
+            market_feature_dim, trading_state_dim, action_space_size, sequence_length
         )
         
         # Target network (updated less frequently)
         self.target_net = DQNNetwork(
-            market_feature_dim, trading_state_dim, action_space_size, lookback_window
+            market_feature_dim, trading_state_dim, action_space_size, sequence_length
         )
         
         # Initialize target network with same weights as online network
@@ -191,8 +206,8 @@ class DoubleDQN(nn.Module):
         Forward pass through either online or target network
         
         Args:
-            market_features: Market data tensor
-            trading_state: Trading state tensor  
+            market_features: Market data tensor (batch_size, sequence_length, n_features)
+            trading_state: Trading state tensor (batch_size, trading_state_dim)
             use_target: Whether to use target network
         
         Returns:
@@ -227,8 +242,8 @@ class DoubleDQN(nn.Module):
         Get action using epsilon-greedy policy
         
         Args:
-            market_features: Market data tensor
-            trading_state: Trading state tensor
+            market_features: Market data tensor (batch_size, sequence_length, n_features)
+            trading_state: Trading state tensor (batch_size, trading_state_dim)
             epsilon: Exploration probability
         
         Returns:
@@ -336,31 +351,31 @@ def load_model(model: DoubleDQN, filepath: str, load_optimizer: bool = False):
 
 # Testing function
 if __name__ == "__main__":
-    print("Testing neural network architectures...")
+    print("Testing LSTM neural network architectures...")
     
     # Test parameters
     batch_size = 32
     market_feature_dim = 25
     trading_state_dim = 8
     action_space_size = 9
-    lookback_window = 30
+    sequence_length = 30
     
-    # Create test data
-    market_features = torch.randn(batch_size, market_feature_dim, lookback_window)
+    # Create test data - NOTE: Different shape for LSTM
+    market_features = torch.randn(batch_size, sequence_length, market_feature_dim)
     trading_state = torch.randn(batch_size, trading_state_dim)
     
-    # Test CNN feature extractor
-    cnn = CNNFeatureExtractor(market_feature_dim, lookback_window)
-    cnn_output = cnn(market_features)
-    print(f"CNN output shape: {cnn_output.shape}")
+    # Test LSTM feature extractor
+    lstm = LSTMFeatureExtractor(market_feature_dim, sequence_length)
+    lstm_output = lstm(market_features)
+    print(f"LSTM output shape: {lstm_output.shape}")
     
     # Test DQN network
-    dqn = DQNNetwork(market_feature_dim, trading_state_dim, action_space_size, lookback_window)
+    dqn = DQNNetwork(market_feature_dim, trading_state_dim, action_space_size, sequence_length)
     q_values = dqn(market_features, trading_state)
     print(f"DQN Q-values shape: {q_values.shape}")
     
     # Test Double DQN
-    ddqn = DoubleDQN(market_feature_dim, trading_state_dim, action_space_size, lookback_window)
+    ddqn = DoubleDQN(market_feature_dim, trading_state_dim, action_space_size, sequence_length)
     
     # Test online network
     online_q_values = ddqn(market_features, trading_state, use_target=False)
@@ -374,24 +389,4 @@ if __name__ == "__main__":
     action = ddqn.get_action(market_features[0:1], trading_state[0:1], epsilon=0.1)
     print(f"Selected action: {action}")
     
-    # Test replay buffer
-    replay_buffer = ReplayBuffer(1000)
-    
-    # Add some transitions
-    for i in range(100):
-        replay_buffer.push(
-            market_features[0].numpy(),
-            trading_state[0].numpy(),
-            np.random.randint(0, action_space_size),
-            np.random.randn(),
-            market_features[0].numpy(),
-            trading_state[0].numpy(),
-            False
-        )
-    
-    # Sample batch
-    batch = replay_buffer.sample(16)
-    print(f"Replay buffer batch size: {len(batch)}")
-    print(f"Batch market features shape: {batch[0].shape}")
-    
-    print("Neural network testing complete!")
+    print("LSTM neural network testing complete!")
